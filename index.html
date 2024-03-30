@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>時間計算工具</title>
+    <script>
+        window.onload = function() {
+            var now = new Date();
+            var timezoneOffset = now.getTimezoneOffset() * 60000; // 將時區偏移量轉換成毫秒
+            var localISOTime = new Date(now - timezoneOffset).toISOString().slice(0, 16);
+            document.getElementById('baseTime').value = localISOTime;
+        };
+
+        function calculate() {
+            var baseTime = new Date(document.getElementById('baseTime').value);
+            var operation = document.getElementById('operation').value;
+            var hoursAmount = parseInt(document.getElementById('hoursAmount').value); // 獲取小時的輸入
+            var minutesAmount = parseInt(document.getElementById('minutesAmount').value); // 獲取分鐘的輸入
+
+            // 根據操作調整時間
+            if (operation === 'add') {
+                baseTime.setHours(baseTime.getHours() + hoursAmount);
+                baseTime.setMinutes(baseTime.getMinutes() + minutesAmount);
+            } else { // subtract
+                baseTime.setHours(baseTime.getHours() - hoursAmount);
+                baseTime.setMinutes(baseTime.getMinutes() - minutesAmount);
+            }
+
+            var resultTimeStr = baseTime.toLocaleString('zh-TW', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: true
+            });
+            document.getElementById('resultTime').textContent = resultTimeStr;
+        }
+    </script>
+</head>
+<body>
+    <h2>時間計算工具</h2>
+    <label for="baseTime">基礎時間:</label>
+    <input type="datetime-local" id="baseTime" name="baseTime"><br><br>
+
+    <label for="operation">操作:</label>
+    <select id="operation">
+        <option value="add" selected>加</option>
+        <option value="subtract">減</option>
+    </select><br><br>
+
+    <!-- 新增輸入欄位 -->
+    <label for="hoursAmount">小時數量:</label>
+    <input type="number" id="hoursAmount" name="hoursAmount" value="0"><br><br>
+    
+    <label for="minutesAmount">分鐘數量:</label>
+    <input type="number" id="minutesAmount" name="minutesAmount" value="0"><br><br>
+
+    <button onclick="calculate()">計算</button><br><br>
+
+    <label>結果時間:</label>
+    <span id="resultTime"></span>
+</body>
+</html>
