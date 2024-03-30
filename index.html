@@ -7,18 +7,18 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
+            padding: 10px;
             margin: 0 auto;
             max-width: 600px;
         }
-        label, button, input, select {
+        label, button,  select {
             display: block;
             width: 100%;
             margin-top: 5px;
         }
         input, select, button {
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 5px;
         }
         #resultTime {
             font-weight: bold;
@@ -36,31 +36,51 @@
 <body>
     <h2>時間計算工具</h2>
     <label for="baseTime">基礎時間:</label>
-    <input type="datetime-local" id="baseTime" name="baseTime"><br>
+    <input type="datetime-local" id="baseTime" name="baseTime" oninput="clearResult()"><br>
+    <br>
+    <label>選擇計算模式:</label>
+    <input type="radio" id="fixed" name="mode" value="fixed" checked oninput="toggleMode()">固定
+    <br>
+    <input type="radio" id="custom" name="mode" value="custom" oninput="toggleMode()">自訂<br>
+    <br>
+    <hr>
+    <br>
+    <div class="fixed-option">
+        <button onclick="setTimeAndCalculate()">直接加2小時40分並計算</button><br>
+    </div>
 
-    <label for="operation">操作:</label>
-    <select id="operation">
-        <option value="add" selected>加</option>
-        <option value="subtract">減</option>
-    </select><br>
-
-    <label for="hoursAmount">小時數量:</label>
-    <input type="number" id="hoursAmount" name="hoursAmount" value="0"><br>
+    <div class="custom-options hidden">
+        <label for="operation">操作:</label>
+        <select id="operation" oninput="clearResult()">
+            <option value="add" selected>加</option>
+            <option value="subtract">減</option>
+        </select><br>
     
-    <label for="minutesAmount">分鐘數量:</label>
-    <input type="number" id="minutesAmount" name="minutesAmount" value="0"><br>
-
-    <button onclick="calculate()">計算</button><br>
+        <label for="hoursAmount">小時數量:</label>
+        <input type="number" id="hoursAmount" name="hoursAmount" value="0" oninput="clearResult()"><br>
+        
+        <label for="minutesAmount">分鐘數量:</label>
+        <input type="number" id="minutesAmount" name="minutesAmount" value="0" oninput="clearResult()"><br>
+    
+        <button onclick="calculate()">計算</button><br>
+    </div>
 
     <label>結果時間:</label>
     <span id="resultTime"></span>
+
+
     <script>
         window.onload = function() {
             var now = new Date();
             var timezoneOffset = now.getTimezoneOffset() * 60000;
             var localISOTime = new Date(now - timezoneOffset).toISOString().slice(0, 16);
             document.getElementById('baseTime').value = localISOTime;
+            toggleMode(); // Ensure correct initial visibility
         };
+
+        function clearResult() {
+            document.getElementById('resultTime').textContent = '';
+        }
     
         function calculate() {
             var baseTimeInput = document.getElementById('baseTime').value;
@@ -100,6 +120,51 @@
                 hour12: true
             });
             document.getElementById('resultTime').textContent = resultTimeStr;
+        }
+
+        function setTimeAndCalculate() {
+            var baseTimeInput = document.getElementById('baseTime').value;
+            if (!baseTimeInput) {
+                document.getElementById('resultTime').textContent = '輸入不正確';
+                return;
+            }
+    
+            var baseTime = new Date(baseTimeInput);
+            var hoursToAdd = 2;
+            var minutesToAdd = 40;
+    
+            if (isNaN(baseTime.getTime())) {
+                document.getElementById('resultTime').textContent = '輸入不正確';
+                return;
+            }
+    
+            baseTime.setHours(baseTime.getHours() + hoursToAdd);
+            baseTime.setMinutes(baseTime.getMinutes() + minutesToAdd);
+    
+            var resultTimeStr = baseTime.toLocaleString('zh-TW', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: true
+            });
+            document.getElementById('resultTime').textContent = resultTimeStr;
+        }
+        
+        function toggleMode() {
+            
+            document.getElementById('resultTime').textContent = '';
+            var fixedOption = document.querySelector('.fixed-option');
+            var customOptions = document.querySelector('.custom-options');
+            if (document.getElementById('fixed').checked) {
+                fixedOption.style.display = 'block';
+                customOptions.style.display = 'none';
+            } else if (document.getElementById('custom').checked) {
+                fixedOption.style.display = 'none';
+                customOptions.style.display = 'block';
+            }
         }
     </script>
     
